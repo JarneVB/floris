@@ -523,7 +523,7 @@ class WindRose:
         ]
 
         freq_wd = np.interp(wd, wind_dir, freq_dir)
-        freq_ws = self.weibull(ws)
+        freq_ws = self.weibull(x = ws)
 
         freq_tot = np.zeros(len(wd) * len(ws))
         wd_tot = np.zeros(len(wd) * len(ws))
