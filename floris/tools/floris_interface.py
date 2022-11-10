@@ -680,183 +680,183 @@ class FlorisInterface(LoggerBase):
 
         return np.sum(turbine_powers, axis=2)
 
-    # def get_farm_AEP(
-    #     self,
-    #     freq,
-    #     cut_in_wind_speed=0.001,
-    #     cut_out_wind_speed=None,
-    #     yaw_angles=None,
-    #     turbine_weights=None,
-    #     no_wake=False,
-    # ) -> float:
-    #     """
-    #     Estimate annual energy production (AEP) for distributions of wind speed, wind
-    #     direction, frequency of occurrence, and yaw offset.
-
-    #     Args:
-    #         freq (NDArrayFloat): NumPy array with shape (n_wind_directions,
-    #             n_wind_speeds) with the frequencies of each wind direction and
-    #             wind speed combination. These frequencies should typically sum
-    #             up to 1.0 and are used to weigh the wind farm power for every
-    #             condition in calculating the wind farm's AEP.
-    #         cut_in_wind_speed (float, optional): Wind speed in m/s below which
-    #             any calculations are ignored and the wind farm is known to
-    #             produce 0.0 W of power. Note that to prevent problems with the
-    #             wake models at negative / zero wind speeds, this variable must
-    #             always have a positive value. Defaults to 0.001 [m/s].
-    #         cut_out_wind_speed (float, optional): Wind speed above which the
-    #             wind farm is known to produce 0.0 W of power. If None is
-    #             specified, will assume that the wind farm does not cut out
-    #             at high wind speeds. Defaults to None.
-    #         yaw_angles (NDArrayFloat | list[float] | None, optional):
-    #             The relative turbine yaw angles in degrees. If None is
-    #             specified, will assume that the turbine yaw angles are all
-    #             zero degrees for all conditions. Defaults to None.
-    #         turbine_weights (NDArrayFloat | list[float] | None, optional):
-    #             weighing terms that allow the user to emphasize power at
-    #             particular turbines and/or completely ignore the power 
-    #             from other turbines. This is useful when, for example, you are
-    #             modeling multiple wind farms in a single floris object. If you
-    #             only want to calculate the power production for one of those
-    #             farms and include the wake effects of the neighboring farms,
-    #             you can set the turbine_weights for the neighboring farms'
-    #             turbines to 0.0. The array of turbine powers from floris
-    #             is multiplied with this array in the calculation of the
-    #             objective function. If None, this  is an array with all values
-    #             1.0 and with shape equal to (n_wind_directions, n_wind_speeds,
-    #             n_turbines). Defaults to None.
-    #         no_wake: (bool, optional): When *True* updates the turbine
-    #             quantities without calculating the wake or adding the wake to
-    #             the flow field. This can be useful when quantifying the loss
-    #             in AEP due to wakes. Defaults to *False*.
-
-    #     Returns:
-    #         float:
-    #             The Annual Energy Production (AEP) for the wind farm in
-    #             watt-hours.
-    #     """
-
-    #     # Verify dimensions of the variable "freq"
-    #     if not (
-    #         (np.shape(freq)[0] == self.floris.flow_field.n_wind_directions)
-    #         & (np.shape(freq)[1] == self.floris.flow_field.n_wind_speeds)
-    #         & (len(np.shape(freq)) == 2)
-    #     ):
-    #         raise UserWarning(
-    #             "'freq' should be a two-dimensional array with dimensions" + " (n_wind_directions, n_wind_speeds)."
-    #         )
-
-    #     # Check if frequency vector sums to 1.0. If not, raise a warning
-    #     if np.abs(np.sum(freq) - 1.0) > 0.001:
-    #         self.logger.warning("WARNING: The frequency array provided to get_farm_AEP() " + "does not sum to 1.0. ")
-
-    #     # Copy the full wind speed array from the floris object and initialize
-    #     # the the farm_power variable as an empty array.
-    #     wind_speeds = np.array(self.floris.flow_field.wind_speeds, copy=True)
-    #     farm_power = np.zeros((self.floris.flow_field.n_wind_directions, len(wind_speeds)))
-
-    #     # Determine which wind speeds we must evaluate in floris
-    #     conditions_to_evaluate = wind_speeds >= cut_in_wind_speed
-    #     if cut_out_wind_speed is not None:
-    #         conditions_to_evaluate = conditions_to_evaluate & (wind_speeds < cut_out_wind_speed)
-
-    #     # Evaluate the conditions in floris
-    #     if np.any(conditions_to_evaluate):
-    #         wind_speeds_subset = wind_speeds[conditions_to_evaluate]
-    #         yaw_angles_subset = None
-    #         if yaw_angles is not None:
-    #             yaw_angles_subset = yaw_angles[:, conditions_to_evaluate]
-    #         self.reinitialize(wind_speeds=wind_speeds_subset)
-    #         if no_wake:
-    #             self.calculate_no_wake(yaw_angles=yaw_angles_subset)
-    #         else:
-    #             self.calculate_wake(yaw_angles=yaw_angles_subset)
-    #         farm_power[:, conditions_to_evaluate] = (
-    #             self.get_farm_power(turbine_weights=turbine_weights)
-    #         )
-
-    #     # Finally, calculate AEP in GWh
-    #     aep = np.sum(np.multiply(freq, farm_power) * 365 * 24)
-
-    #     # Reset the FLORIS object to the full wind speed array
-    #     self.reinitialize(wind_speeds=wind_speeds)
-
-    #     return aep
-
     def get_farm_AEP(
-        self, wd, ws, freq, yaw=None, limit_ws=False, ws_limit_tol=0.001, ws_cutout=30.0
-    ):
-    #I changed the def above with this def, because the data of the wind rose is easier to use this way
+        self,
+        freq,
+        cut_in_wind_speed=0.001,
+        cut_out_wind_speed=None,
+        yaw_angles=None,
+        turbine_weights=None,
+        no_wake=False,
+    ) -> float:
         """
-        Estimate annual energy production (AEP) for distributions of wind
-        speed, wind direction and yaw offset.
+        Estimate annual energy production (AEP) for distributions of wind speed, wind
+        direction, frequency of occurrence, and yaw offset.
 
         Args:
-            wd (iterable): List or array of wind direction values.
-            ws (iterable): List or array of wind speed values.
-            freq (iterable): Frequencies corresponding to wind speeds and
-                directions in wind rose.
-            yaw (iterable, optional): List or array of yaw values if wake is
-                steering implemented. Defaults to None.
-            limit_ws (bool, optional): When *True*, detect wind speed when power
-                reaches it's maximum value for a given wind direction. For all
-                higher wind speeds, use last calculated value when below cut
-                out. Defaults to False.
-            ws_limit_tol (float, optional): Tolerance fraction for determining
-                wind speed where power stops changing. If limit_ws is *True*,
-                assume power remains constant up to cut out for wind speeds
-                above the point where power changes less than ws_limit_tol of
-                the previous power. Defaults to 0.001.
-            ws_cutout (float, optional): Cut out wind speed (m/s). If limit_ws
-                is *True*, assume power is zero for wind speeds greater than or
-                equal to ws_cutout.
+            freq (NDArrayFloat): NumPy array with shape (n_wind_directions,
+                n_wind_speeds) with the frequencies of each wind direction and
+                wind speed combination. These frequencies should typically sum
+                up to 1.0 and are used to weigh the wind farm power for every
+                condition in calculating the wind farm's AEP.
+            cut_in_wind_speed (float, optional): Wind speed in m/s below which
+                any calculations are ignored and the wind farm is known to
+                produce 0.0 W of power. Note that to prevent problems with the
+                wake models at negative / zero wind speeds, this variable must
+                always have a positive value. Defaults to 0.001 [m/s].
+            cut_out_wind_speed (float, optional): Wind speed above which the
+                wind farm is known to produce 0.0 W of power. If None is
+                specified, will assume that the wind farm does not cut out
+                at high wind speeds. Defaults to None.
+            yaw_angles (NDArrayFloat | list[float] | None, optional):
+                The relative turbine yaw angles in degrees. If None is
+                specified, will assume that the turbine yaw angles are all
+                zero degrees for all conditions. Defaults to None.
+            turbine_weights (NDArrayFloat | list[float] | None, optional):
+                weighing terms that allow the user to emphasize power at
+                particular turbines and/or completely ignore the power 
+                from other turbines. This is useful when, for example, you are
+                modeling multiple wind farms in a single floris object. If you
+                only want to calculate the power production for one of those
+                farms and include the wake effects of the neighboring farms,
+                you can set the turbine_weights for the neighboring farms'
+                turbines to 0.0. The array of turbine powers from floris
+                is multiplied with this array in the calculation of the
+                objective function. If None, this  is an array with all values
+                1.0 and with shape equal to (n_wind_directions, n_wind_speeds,
+                n_turbines). Defaults to None.
+            no_wake: (bool, optional): When *True* updates the turbine
+                quantities without calculating the wake or adding the wake to
+                the flow field. This can be useful when quantifying the loss
+                in AEP due to wakes. Defaults to *False*.
 
         Returns:
-            float: AEP for wind farm.
+            float:
+                The Annual Energy Production (AEP) for the wind farm in
+                watt-hours.
         """
-        AEP_sum = 0
 
-        # sort wd and ws by wind speed
-        inds = np.argsort(ws)
-        ws = ws[inds]
-        wd = wd[inds]
-        freq = freq[inds]
+        # Verify dimensions of the variable "freq"
+        if not (
+            (np.shape(freq)[0] == self.floris.flow_field.n_wind_directions)
+            & (np.shape(freq)[1] == self.floris.flow_field.n_wind_speeds)
+            & (len(np.shape(freq)) == 2)
+        ):
+            raise UserWarning(
+                "'freq' should be a two-dimensional array with dimensions" + " (n_wind_directions, n_wind_speeds)."
+            )
 
-        # keep track of wind speeds where power stops increasing for each wind
-        # direction
-        prev_pow = {wdir: 0.0 for wdir in np.unique(wd)}
-        use_prev_pow = {wdir: False for wdir in np.unique(wd)}
+        # Check if frequency vector sums to 1.0. If not, raise a warning
+        if np.abs(np.sum(freq) - 1.0) > 0.001:
+            self.logger.warning("WARNING: The frequency array provided to get_farm_AEP() " + "does not sum to 1.0. ")
 
-        for i in range(len(wd)):
-            # If not using wind speed limit or still below maximum power, then
-            # calculate farm power
-            if not (limit_ws & use_prev_pow[wd[i]]):
-                self.reinitialize_flow_field(wind_direction=[wd[i]], wind_speed=[ws[i]])
-                if yaw is None:
-                    self.calculate_wake()
-                else:
-                    self.calculate_wake(yaw[i])
+        # Copy the full wind speed array from the floris object and initialize
+        # the the farm_power variable as an empty array.
+        wind_speeds = np.array(self.floris.flow_field.wind_speeds, copy=True)
+        farm_power = np.zeros((self.floris.flow_field.n_wind_directions, len(wind_speeds)))
 
-                farm_power = self.get_farm_power()
+        # Determine which wind speeds we must evaluate in floris
+        conditions_to_evaluate = wind_speeds >= cut_in_wind_speed
+        if cut_out_wind_speed is not None:
+            conditions_to_evaluate = conditions_to_evaluate & (wind_speeds < cut_out_wind_speed)
 
-                # check if power has stopped increasing
-                if (
-                    limit_ws
-                    & (farm_power > 0)
-                    & (np.abs(farm_power / prev_pow[wd[i]] - 1) < ws_limit_tol)
-                ):
-                    use_prev_pow[wd[i]] = True
-
-                prev_pow[wd[i]] = farm_power
-
-            elif limit_ws & (ws[i] >= ws_cutout):
-                farm_power = 0.0
+        # Evaluate the conditions in floris
+        if np.any(conditions_to_evaluate):
+            wind_speeds_subset = wind_speeds[conditions_to_evaluate]
+            yaw_angles_subset = None
+            if yaw_angles is not None:
+                yaw_angles_subset = yaw_angles[:, conditions_to_evaluate]
+            self.reinitialize(wind_speeds=wind_speeds_subset)
+            if no_wake:
+                self.calculate_no_wake(yaw_angles=yaw_angles_subset)
             else:
-                farm_power = prev_pow[wd[i]]
+                self.calculate_wake(yaw_angles=yaw_angles_subset)
+            farm_power[:, conditions_to_evaluate] = (
+                self.get_farm_power(turbine_weights=turbine_weights)
+            )
 
-            AEP_sum = AEP_sum + farm_power * freq[i] * 8760
+        # Finally, calculate AEP in GWh
+        aep = np.sum(np.multiply(freq, farm_power) * 365 * 24)
 
-        return AEP_sum
+        # Reset the FLORIS object to the full wind speed array
+        self.reinitialize(wind_speeds=wind_speeds)
+
+        return aep
+
+    # def get_farm_AEP(
+    #     self, wd, ws, freq, yaw=None, limit_ws=False, ws_limit_tol=0.001, ws_cutout=30.0
+    # ):
+    # #I changed the def above with this def, because the data of the wind rose is easier to use this way
+    #     """
+    #     Estimate annual energy production (AEP) for distributions of wind
+    #     speed, wind direction and yaw offset.
+
+    #     Args:
+    #         wd (iterable): List or array of wind direction values.
+    #         ws (iterable): List or array of wind speed values.
+    #         freq (iterable): Frequencies corresponding to wind speeds and
+    #             directions in wind rose.
+    #         yaw (iterable, optional): List or array of yaw values if wake is
+    #             steering implemented. Defaults to None.
+    #         limit_ws (bool, optional): When *True*, detect wind speed when power
+    #             reaches it's maximum value for a given wind direction. For all
+    #             higher wind speeds, use last calculated value when below cut
+    #             out. Defaults to False.
+    #         ws_limit_tol (float, optional): Tolerance fraction for determining
+    #             wind speed where power stops changing. If limit_ws is *True*,
+    #             assume power remains constant up to cut out for wind speeds
+    #             above the point where power changes less than ws_limit_tol of
+    #             the previous power. Defaults to 0.001.
+    #         ws_cutout (float, optional): Cut out wind speed (m/s). If limit_ws
+    #             is *True*, assume power is zero for wind speeds greater than or
+    #             equal to ws_cutout.
+
+    #     Returns:
+    #         float: AEP for wind farm.
+    #     """
+    #     AEP_sum = 0
+
+    #     # sort wd and ws by wind speed
+    #     inds = np.argsort(ws)
+    #     ws = ws[inds]
+    #     wd = wd[inds]
+    #     freq = freq[inds]
+
+    #     # keep track of wind speeds where power stops increasing for each wind
+    #     # direction
+    #     prev_pow = {wdir: 0.0 for wdir in np.unique(wd)}
+    #     use_prev_pow = {wdir: False for wdir in np.unique(wd)}
+
+    #     for i in range(len(wd)):
+    #         # If not using wind speed limit or still below maximum power, then
+    #         # calculate farm power
+    #         if not (limit_ws & use_prev_pow[wd[i]]):
+    #             self.reinitialize_flow_field(wind_direction=[wd[i]], wind_speed=[ws[i]])
+    #             if yaw is None:
+    #                 self.calculate_wake()
+    #             else:
+    #                 self.calculate_wake(yaw[i])
+
+    #             farm_power = self.get_farm_power()
+
+    #             # check if power has stopped increasing
+    #             if (
+    #                 limit_ws
+    #                 & (farm_power > 0)
+    #                 & (np.abs(farm_power / prev_pow[wd[i]] - 1) < ws_limit_tol)
+    #             ):
+    #                 use_prev_pow[wd[i]] = True
+
+    #             prev_pow[wd[i]] = farm_power
+
+    #         elif limit_ws & (ws[i] >= ws_cutout):
+    #             farm_power = 0.0
+    #         else:
+    #             farm_power = prev_pow[wd[i]]
+
+    #         AEP_sum = AEP_sum + farm_power * freq[i] * 8760
+
+    #     return AEP_sum
 
     def get_farm_AEP_wind_rose_class(
         self,
