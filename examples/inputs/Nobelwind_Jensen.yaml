@@ -124,7 +124,7 @@ farm:
 flow_field:
   air_density: 1.225
   reference_wind_height: -1 # -1 is code for use the hub height
-  turbulence_intensity: 0.06
+  turbulence_intensity: 0.08
   wind_directions:
   - 0   
   - 5  
@@ -230,7 +230,7 @@ flow_field:
 
 wake:
   model_strings:
-    combination_model: sosfs
+    combination_model: fls
     deflection_model: jimenez
     turbulence_model: crespo_hernandez
     velocity_model: jensen

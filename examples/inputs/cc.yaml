@@ -25,7 +25,7 @@ farm:
   - 0.0
   - 0.0
   turbine_type:
-  - V112_33MW
+  - nrel_5MW
 
 flow_field:
   air_density: 1.225

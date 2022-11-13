@@ -1,6 +1,6 @@
 
-name: GCH
-description: Three turbines using Gauss Curl Hybrid model
+name: Nobelwind-Jensen
+description: Nobelwind wind farm Jensen / Jimenez models
 floris_version: v3.0.0
 
 logging:
@@ -17,33 +17,58 @@ solver:
 
 farm:
   layout_x:
-  - 0.0
-  - 630.0
-  - 1260.0
+  - 1
+  - 100
+  - 200
   layout_y:
-  - 0.0
-  - 0.0
-  - 0.0
+  - 1
+  - 100
+  - 200
   turbine_type:
-  - nrel_5MW
+  - V112_33MW
 
 flow_field:
   air_density: 1.225
   reference_wind_height: -1 # -1 is code for use the hub height
-  turbulence_intensity: 0.06
+  turbulence_intensity: 0.08
   wind_directions:
-  - 270.0
-  wind_shear: 0.12
+  - 
+  wind_shear: 0.1
   wind_speeds:
-  - 8.0
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  - 21
+  - 22
+  - 23
+  - 24
+  - 25
   wind_veer: 0.0
 
 wake:
   model_strings:
-    combination_model: sosfs
-    deflection_model: gauss
+    combination_model: fls
+    deflection_model: jimenez
     turbulence_model: crespo_hernandez
-    velocity_model: gauss
+    velocity_model: jensen
 
   enable_secondary_steering: true
   enable_yaw_added_recovery: true
@@ -76,10 +101,10 @@ wake:
     gauss:
       alpha: 0.58
       beta: 0.077
-      ka: 0.38
-      kb: 0.004
+      ka: 0.3837
+      kb: 0.003678
     jensen:
-      we: 0.05
+      we: 0.04
 
   wake_turbulence_parameters:
     crespo_hernandez:
