@@ -126,7 +126,7 @@ flow_field:
   reference_wind_height: -1 # -1 is code for use the hub height
   turbulence_intensity: 0.08
   wind_directions:
-  - 190.0
+  - 220.0
   wind_shear: 0.1
   wind_speeds:
   - 9.32
