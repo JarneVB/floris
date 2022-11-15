@@ -19,12 +19,15 @@ farm:
   layout_x:
   - 0.0
   - 630.0
+  - 750
   layout_y:
   - 0.0
   - 0.0
+  - 0.0
   turbine_type:
-  - nrel_5MW
   - iea_10MW
+  - nrel_5MW
+
 
 flow_field:
   air_density: 1.225
