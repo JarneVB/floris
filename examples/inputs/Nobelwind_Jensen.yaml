@@ -226,6 +226,7 @@ flow_field:
   - 23
   - 24
   - 25
+  - 50
   wind_veer: 0.0
 
 wake:
