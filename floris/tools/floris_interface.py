@@ -789,6 +789,7 @@ class FlorisInterface(LoggerBase):
         cut_in_wind_speed=0.001,
         cut_out_wind_speed=None,
         yaw_angles=None,
+        turbine_weights=None,
         no_wake=False,
     ) -> float:
         """
@@ -806,6 +807,19 @@ class FlorisInterface(LoggerBase):
                 wind farm is known to produce 0.0 W of power. If None is
                 specified, will assume that the wind farm does not cut out
                 at high wind speeds. Defaults to None.
+            turbine_weights (NDArrayFloat | list[float] | None, optional):
+                weighing terms that allow the user to emphasize power at
+                particular turbines and/or completely ignore the power 
+                from other turbines. This is useful when, for example, you are
+                modeling multiple wind farms in a single floris object. If you
+                only want to calculate the power production for one of those
+                farms and include the wake effects of the neighboring farms,
+                you can set the turbine_weights for the neighboring farms'
+                turbines to 0.0. The array of turbine powers from floris
+                is multiplied with this array in the calculation of the
+                objective function. If None, this  is an array with all values
+                1.0 and with shape equal to (n_wind_directions, n_wind_speeds,
+                n_turbines). Defaults to None.
             yaw_angles (NDArrayFloat | list[float] | None, optional):
                 The relative turbine yaw angles in degrees. If None is
                 specified, will assume that the turbine yaw angles are all
@@ -839,6 +853,7 @@ class FlorisInterface(LoggerBase):
             freq,
             cut_in_wind_speed=cut_in_wind_speed,
             cut_out_wind_speed=cut_out_wind_speed,
+            turbine_weights=turbine_weights,
             yaw_angles=yaw_angles,
             no_wake=no_wake)
 
