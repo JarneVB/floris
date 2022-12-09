@@ -461,6 +461,102 @@ class WindRose:
         """
         return (k / lam) * (x / lam) ** (k - 1) * np.exp(-((x / lam) ** k))
 
+    # def make_wind_rose_from_weibull(
+    #     self, wd=np.arange(0, 360, 5.0), ws=np.arange(0, 26, 1.0)
+    # ):
+    #     """
+    #     Populate WindRose object with an example wind rose with wind speed
+    #     frequencies given by a Weibull distribution. The wind direction
+    #     frequencies are initialized according to an example distribution.
+
+    #     Args:
+    #         wd (np.array, optional): Wind direciton bin centers (deg). Defaults
+    #         to np.arange(0, 360, 5.).
+    #         ws (np.array, optional): Wind speed bin centers (m/s). Defaults to
+    #             np.arange(0, 26, 1.).
+
+    #     Returns:
+    #         pandas.DataFrame: Wind rose DataFrame containing at least the
+    #         following columns:
+
+    #             - **wd** (*float*) - Wind direction bin center values (deg).
+    #             - **ws** (*float*) - Wind speed bin center values (m/s).
+    #             - **freq_val** (*float*) - The frequency of occurance of the
+    #               wind conditions in the other columns.
+    #     """
+    #     # Use an assumed wind-direction for dir frequency
+    #     wind_dir = [
+    #         0,
+    #         22.5,
+    #         45,
+    #         67.5,
+    #         90,
+    #         112.5,
+    #         135,
+    #         157.5,
+    #         180,
+    #         202.5,
+    #         225,
+    #         247.5,
+    #         270,
+    #         292.5,
+    #         315,
+    #         337.5,
+    #     ]
+    #     freq_dir = [
+    #         0.064,
+    #         0.04,
+    #         0.038,
+    #         0.036,
+    #         0.045,
+    #         0.05,
+    #         0.07,
+    #         0.08,
+    #         0.11,
+    #         0.08,
+    #         0.05,
+    #         0.036,
+    #         0.048,
+    #         0.058,
+    #         0.095,
+    #         0.10,
+    #     ]
+
+    #     freq_wd = np.interp(wd, wind_dir, freq_dir)
+    #     freq_ws = self.weibull(ws)
+
+    #     freq_tot = np.zeros(len(wd) * len(ws))
+    #     wd_tot = np.zeros(len(wd) * len(ws))
+    #     ws_tot = np.zeros(len(wd) * len(ws))
+
+    #     count = 0
+    #     for i in range(len(wd)):
+    #         for j in range(len(ws)):
+    #             wd_tot[count] = wd[i]
+    #             ws_tot[count] = ws[j]
+
+    #             freq_tot[count] = freq_wd[i] * freq_ws[j]
+    #             count = count + 1
+
+    #     # renormalize
+    #     freq_tot = freq_tot / np.sum(freq_tot)
+
+    #     # Load the wind toolkit data into a dataframe
+    #     df = pd.DataFrame()
+
+    #     # Start by simply round and wrapping the wind direction and wind speed
+    #     # columns
+    #     df["wd"] = wd_tot
+    #     df["ws"] = ws_tot
+
+    #     # Now group up
+    #     df["freq_val"] = freq_tot
+
+    #     # Save the df at this point
+    #     self.df = df
+    #     # TODO is there a reason self.df is updated AND returned?
+    #     return self.df
+
     def make_wind_rose_from_weibull(
         self, wd=np.arange(0, 360, 5.0), ws=np.arange(0, 26, 1.0)
     ):
@@ -485,45 +581,14 @@ class WindRose:
                   wind conditions in the other columns.
         """
         # Use an assumed wind-direction for dir frequency
-        wind_dir = [
-            0,
-            22.5,
-            45,
-            67.5,
-            90,
-            112.5,
-            135,
-            157.5,
-            180,
-            202.5,
-            225,
-            247.5,
-            270,
-            292.5,
-            315,
-            337.5,
-        ]
-        freq_dir = [
-            0.064,
-            0.04,
-            0.038,
-            0.036,
-            0.045,
-            0.05,
-            0.07,
-            0.08,
-            0.11,
-            0.08,
-            0.05,
-            0.036,
-            0.048,
-            0.058,
-            0.095,
-            0.10,
-        ]
+        wind_dir = np.array([0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330])
+        freq_dir = np.array([5.6, 6.7, 7.0, 7.1, 5.5, 4.6, 8.0, 12.7, 19.3, 9.7, 7.4, 6.4])/100
+        k = np.array([2.262, 2.407, 2.487, 2.201, 2.375, 1.877, 2.229, 2.420, 2.274, 2.261, 2.007, 1.936])
 
         freq_wd = np.interp(wd, wind_dir, freq_dir)
-        freq_ws = self.weibull(ws)
+        freq_ws = [0] * len(freq_wd)
+        for i in len(freq_wd):
+            freq_ws[i] = self.weibull(ws[i], k[i])
 
         freq_tot = np.zeros(len(wd) * len(ws))
         wd_tot = np.zeros(len(wd) * len(ws))
@@ -556,6 +621,7 @@ class WindRose:
         self.df = df
         # TODO is there a reason self.df is updated AND returned?
         return self.df
+
 
     def make_wind_rose_from_user_data(
         self, wd_raw, ws_raw, *args, wd=np.arange(0, 360, 5.0), ws=np.arange(0, 26, 1.0)
