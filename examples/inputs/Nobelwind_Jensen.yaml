@@ -119,7 +119,7 @@ farm:
   - 22466
   - 22023
   turbine_type:
-  - V112_33MW
+  - 'V112_33MW'
 
 flow_field:
   air_density: 1.225

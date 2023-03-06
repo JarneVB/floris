@@ -133,6 +133,7 @@ class Farm(BaseClass):
 
     def construct_turbine_power_interps(self):
         self.turbine_power_interps = [(turb.turbine_type, turb.power_interp) for turb in self.turbine_map]
+        
 
     def construct_coordinates(self):
         self.coordinates = np.array(
