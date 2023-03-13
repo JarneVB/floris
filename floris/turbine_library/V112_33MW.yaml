@@ -8,7 +8,6 @@ TSR: 8.0 #not sure
 ref_density_cp_ct: 1.225 #not sure
 power_thrust_table:
   power:
-    - 0
     - 0.0
     - 0.0368
     - 0.2126
@@ -58,8 +57,7 @@ power_thrust_table:
     - 0.0
 
   thrust:
-    - 0
-    - 0.0
+    - 1
     - 0.94
     - 0.906
     - 0.880
@@ -108,7 +106,6 @@ power_thrust_table:
     - 0.0 
 
   wind_speed:
-    - -50
     - 0.0
     - 3.0
     - 3.5

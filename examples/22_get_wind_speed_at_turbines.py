@@ -16,12 +16,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from floris.tools import FlorisInterface
+from floris.floris.tools import FlorisInterface
 
 # Initialize FLORIS with the given input file via FlorisInterface.
 # For basic usage, FlorisInterface provides a simplified and expressive
 # entry point to the simulation routines.
-fi = FlorisInterface("inputs/gch.yaml")
+fi = FlorisInterface("floris/examples/inputs/gch.yaml")
 
 # Create a 4-turbine layouts
 fi.reinitialize(layout_x=[0, 0., 500., 500.], layout_y=[0., 300., 0., 300.])
