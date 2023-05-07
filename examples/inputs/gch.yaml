@@ -30,7 +30,7 @@ farm:
 flow_field:
   air_density: 1.225
   reference_wind_height: -1 # -1 is code for use the hub height
-  turbulence_intensity: 0.06
+  turbulence_intensity: 0.15
   wind_directions:
   - 270.0
   wind_shear: 0.12
@@ -40,10 +40,10 @@ flow_field:
 
 wake:
   model_strings:
-    combination_model: sosfs
+    combination_model: fls
     deflection_model: gauss
     turbulence_model: crespo_hernandez
-    velocity_model: gauss
+    velocity_model: jensen
 
   enable_secondary_steering: true
   enable_yaw_added_recovery: true
@@ -79,7 +79,7 @@ wake:
       ka: 0.38
       kb: 0.004
     jensen:
-      we: 0.05
+      we: 0.04
 
   wake_turbulence_parameters:
     crespo_hernandez:
