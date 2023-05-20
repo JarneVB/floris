@@ -589,6 +589,9 @@ class FlorisInterface(LoggerBase):
             power_interp=self.floris.farm.turbine_power_interps,
             turbine_type_map=self.floris.farm.turbine_type_map,
         )
+        
+        print(self.floris.flow_field.u)
+        d = input()
         # print(turbine_powers)
         return turbine_powers
         
@@ -784,7 +787,7 @@ class FlorisInterface(LoggerBase):
             farm_power[:, conditions_to_evaluate] = (
                 self.get_farm_power(turbine_weights=turbine_weights)
             )
-
+        
         # Finally, calculate AEP in GWh
         aep = np.sum(np.multiply(freq, farm_power) * 365 * 24)
 

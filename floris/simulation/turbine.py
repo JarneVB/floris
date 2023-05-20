@@ -134,6 +134,7 @@ def power(
         pP = pP[:, :, ix_filter]
         turbine_type_map = turbine_type_map[:, :, ix_filter]
 
+   
     # Compute the yaw effective velocity
     pW = pP / 3.0  # Convert from pP to w
     yaw_effective_velocity = ((air_density/ref_density_cp_ct)**(1/3)) * average_velocity(velocities) * cosd(yaw_angle) ** pW
