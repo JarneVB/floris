@@ -572,13 +572,6 @@ class FlorisInterface(LoggerBase):
         if self.floris.state is not State.USED:
             raise RuntimeError(f"Can't run function `FlorisInterface.get_turbine_powers` without first running `FlorisInterface.calculate_wake`.")
 
-        # print(self.floris.flow_field.air_density)
-        # print(self.floris.farm.ref_density_cp_cts)
-        # print(self.floris.flow_field.u)
-        # print(self.floris.farm.yaw_angles)
-        # print(self.floris.farm.pPs)        
-        # print(self.floris.farm.turbine_power_interps)
-        # print(self.floris.farm.turbine_type_map)
 
         turbine_powers = power(
             air_density=self.floris.flow_field.air_density,
